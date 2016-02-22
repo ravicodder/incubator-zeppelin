@@ -58,7 +58,7 @@ public class ParagraphActionsIT extends AbstractZeppelinIT {
   }
 
   @Test
-  public void testRemoveButton() throws InterruptedException {
+  public void testRemoveButton() throws Exception {
     if (!endToEndTestEnabled()) {
       return;
     }
