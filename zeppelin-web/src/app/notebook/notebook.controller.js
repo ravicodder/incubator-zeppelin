@@ -711,20 +711,22 @@ angular.module('zeppelinWebApp').controller('NotebookCtrl',
     }
   };
 
+var getSearchItems = function auth() {
+            $http.get(baseUrlSrv.getRestApiBase()+'/security/userlist').then(function(response) {
 
+               var userlist = angular.fromJson(response.data).body;
+               for (var k in userlist)
+                {
+                  console.log(k);
+                  $rootScope.searchItems.push(k);
+                }
+                console.log('HI'+ $rootScope.searchItems);
+            });
 
+    };
 
-  $scope.fruits = 'aam';
-       $scope.searchItems = [
-          'Apple',
-          'orange',
-          'kiwi',
-          'aam',
-          'mango',
-          'lichi',
-          'strawberry',
-          'papaya'
-          ];
+        $rootScope.searchItems = [];
+        getSearchItems();
 
         $scope.searchItems.sort();
         $scope.suggestions = [];
