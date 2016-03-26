@@ -711,4 +711,139 @@ angular.module('zeppelinWebApp').controller('NotebookCtrl',
     }
   };
 
+
+
+
+  $scope.fruits = 'aam';
+       $scope.searchItems = [
+          'Apple',
+          'orange',
+          'kiwi',
+          'aam',
+          'mango',
+          'lichi',
+          'strawberry',
+          'papaya'
+          ];
+
+        $scope.searchItems.sort();
+        $scope.suggestions = [];
+        $scope.selectIndex = -1;
+        $scope.selectedUser = '*';
+
+
+        $scope.search = function()
+          {
+            console.log($scope.permissions.searchText);
+            $scope.selectIndex = -1;
+            $scope.suggestions = [];
+            $scope.selectedUser = $scope.permissions.searchText;
+            var maxlen = 0;
+            for(var i=0; i<$scope.searchItems.length;i++)
+             {
+               var searchitemlowercase=angular.lowercase($scope.searchItems[i]);
+               var searchtextlowercase=angular.lowercase($scope.permissions.searchText);
+               if( searchitemlowercase.indexOf( searchtextlowercase) !== -1)
+                {
+                 console.log($scope.searchItems[i]);
+                 maxlen++;
+                 $scope.suggestions.push($scope.searchItems[i]);
+                }
+                if(maxlen === 5)
+                {
+                 break;
+                }
+             }
+           };
+
+       var checkIfSelected = function()
+        {
+
+          if ( ($scope.suggestions.length === 0) && ($scope.selectIndex <0 || $scope.selectIndex >= $scope.suggestions.length)  || ( $scope.suggestions.length !== 0 && ( $scope.selectIndex <0 || $scope.selectIndex >= $scope.suggestions.length   )) )
+                 {
+                      $scope.permissions.searchText =  $scope.selectedUser;
+                      $scope.suggestions = [];
+                      return true;
+                 }
+         else
+                 {
+                        return false;
+                 }
+
+
+        };
+
+
+
+       $scope.checkKeyDown = function(event)
+        {
+
+            if(event.keyCode === 40)
+             {
+
+               event.preventDefault();
+
+
+               if($scope.selectIndex+1 !== $scope.suggestions.length)
+                {
+                  $scope.selectIndex++;
+                  console.log($scope.suggestions[$scope.selectIndex]);
+
+
+                }
+
+              console.log($scope.selectIndex);
+              }
+            else if(event.keyCode === 38)
+             {
+               event.preventDefault();
+
+                 if($scope.selectIndex-1 !== -1)
+                  {
+                    $scope.selectIndex--;
+
+                    }
+
+                  console.log($scope.selectIndex);
+             }
+            else if(event.keyCode === 13)
+             {
+
+                event.preventDefault();
+                console.log('bol sajna');
+                console.log($scope.selectIndex);
+                console.log($scope.suggestions[$scope.selectIndex]);
+
+                 if(!checkIfSelected())
+                 {
+                     $scope.selectedUser = $scope.suggestions[$scope.selectIndex];
+                     $scope.permissions.searchText = $scope.suggestions[$scope.selectIndex];
+                     $scope.suggestions = [];
+                 }
+
+
+             }
+
+        };
+
+      $scope.checkKeyUp = function(event)
+        {
+          if(event.keyCode !== 8 || event.keyCode !== 46)
+           {
+             if($scope.permissions.searchText === '')
+               {
+                   $scope.suggestions = [];
+               }
+            }
+         };
+
+
+
+        $scope.assignValueAndHide =function(index)
+         {
+           $scope.permissions.searchText=$scope.suggestions[index];
+           $scope.suggestions = [];
+         };
+
+
 });

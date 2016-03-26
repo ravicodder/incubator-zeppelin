@@ -16,15 +16,24 @@
  */
 package org.apache.zeppelin.utils;
 
+import org.apache.lucene.analysis.compound.hyphenation.TernaryTree;
+import org.apache.shiro.mgt.DefaultSecurityManager;
+import org.apache.shiro.mgt.RealmSecurityManager;
+import org.apache.shiro.mgt.SecurityManager;
+import org.apache.shiro.realm.Realm;
+import org.apache.shiro.realm.text.IniRealm;
+import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.Subject;
+import org.apache.shiro.subject.SubjectContext;
+import org.apache.shiro.util.ThreadContext;
+import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.zeppelin.conf.ZeppelinConfiguration;
 
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
-import java.util.Arrays;
-import java.util.HashSet;
+import java.util.*;
 
 /**
  * Tools for securing Zeppelin
@@ -54,7 +63,7 @@ public class SecurityUtils {
    */
   public static String getPrincipal() {
     Subject subject = org.apache.shiro.SecurityUtils.getSubject();
-
+    System.out.println(subject);
     String principal;
     if (subject.isAuthenticated()) {
       principal = subject.getPrincipal().toString();

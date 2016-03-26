@@ -17,6 +17,11 @@
 
 package org.apache.zeppelin.rest;
 
+import org.apache.shiro.realm.Realm;
+import org.apache.shiro.realm.text.IniRealm;
+import org.apache.shiro.subject.SimplePrincipalCollection;
+import org.apache.shiro.util.ThreadContext;
+import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.zeppelin.conf.ZeppelinConfiguration;
 import org.apache.zeppelin.server.JsonResponse;
 import org.apache.zeppelin.ticket.TicketContainer;
@@ -28,9 +33,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Zeppelin security rest api endpoint.
@@ -78,5 +81,20 @@ public class SecurityRestApi {
     response = new JsonResponse(Response.Status.OK, "", data);
     LOG.warn(response.toString());
     return response.build();
+  }
+
+
+  @GET
+  @Path("userlist")
+  public Response putUserList()
+  {
+    DefaultWebSecurityManager defaultWebSecurityManager;
+    String key = "org.apache.shiro.util.ThreadContext_SECURITY_MANAGER_KEY";
+    defaultWebSecurityManager = (DefaultWebSecurityManager) ThreadContext.get(key);
+    Collection<Realm> realms = (Collection<Realm>) defaultWebSecurityManager.getRealms();
+    List realmsList = new ArrayList(realms);
+    IniRealm r = (IniRealm) realmsList.get(0);
+    Map<String, String> userslist = r.getIni().get("users");
+    return new JsonResponse<>(Response.Status.OK, "", userslist).build();
   }
 }
