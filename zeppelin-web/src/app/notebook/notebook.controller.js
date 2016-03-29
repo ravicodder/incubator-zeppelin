@@ -674,6 +674,12 @@ angular.module('zeppelinWebApp').controller('NotebookCtrl',
   };
 
   $scope.savePermissions = function() {
+   if (!angular.isArray($scope.permissions.owners))
+      $scope.permissions.owners = $scope.permissions.owners.split(',');
+   // $scope.permissions.searchText = $scope.permissions.searchText.split(',');
+
+console.log($scope.permissions.owners);
+    console.log('Note permissions %o saved', $scope.permissions);
     $http.put(baseUrlSrv.getRestApiBase() + '/notebook/' +$scope.note.id + '/permissions',
       $scope.permissions, {withCredentials: true}).
     success(function(data, status, headers, config) {
@@ -711,141 +717,177 @@ angular.module('zeppelinWebApp').controller('NotebookCtrl',
     }
   };
 
-var getSearchItems = function auth() {
-            $http.get(baseUrlSrv.getRestApiBase()+'/security/userlist').then(function(response) {
 
-               var userlist = angular.fromJson(response.data).body;
-               for (var k in userlist)
-                {
-                  console.log(k);
-                  $rootScope.searchItems.push(k);
-                }
-                console.log('HI'+ $rootScope.searchItems);
-            });
 
+//--------------------------------------------------------------------------------------------------------------------------------------------------
+
+   $scope.suggestions = [];
+   $scope.selectIndex = -1;
+   $scope.selectedUser = '*';
+   $scope.searchItems = [];
+   $scope.selectedUserIndex = 0;
+   $scope.previousSelectedList = [];
+   $scope.searchText = [];
+
+
+
+
+
+  var convertToArray = function () {
+     $scope.searchText = $scope.permissions.owners.split(',');
+     //console.log($scope.searchText[0]+'lol');
+  };
+
+  var convertToString = function () {
+    $scope.permissions.owners = $scope.searchText.join();
+  };
+
+  var getSearchItems = function () {
+    $http.get(baseUrlSrv.getRestApiBase()+'/security/userlist').then(function(response) {
+    var userlist = angular.fromJson(response.data).body;
+    for (var k in userlist)
+     {
+      $scope.searchItems.push(k);
+     }
+    });
+  };
+
+   getSearchItems();
+   $scope.searchItems.sort();
+
+  var updatePreviousList = function() {
+    for (var i = 0; i< $scope.searchText.length; i++ )
+      {
+        $scope.previousSelectedList[i] =  $scope.searchText[i];
+      }
+  };
+
+
+  var getChangedIndex = function ()
+    {
+      if($scope.previousSelectedList.length === 0)
+       {
+         $scope.selectedUserIndex = 0;
+       }
+      else
+        {
+          for ( var i = 0; i< $scope.searchText.length; i++ )
+          {
+             if($scope.previousSelectedList[i] !==  $scope.searchText[i])
+              {
+                $scope.selectedUserIndex = i;
+                $scope.previousSelectedList = [];
+                break;
+              }
+          }
+       updatePreviousList();
+        }
     };
 
-        $rootScope.searchItems = [];
-        getSearchItems();
+  $scope.search = function()
+    {
+     convertToArray();
+     getChangedIndex();
+     $scope.selectIndex = -1;
+     $scope.suggestions = [];
 
-        $scope.searchItems.sort();
-        $scope.suggestions = [];
-        $scope.selectIndex = -1;
-        $scope.selectedUser = '*';
-
-
-        $scope.search = function()
-          {
-            console.log($scope.permissions.searchText);
-            $scope.selectIndex = -1;
-            $scope.suggestions = [];
-            $scope.selectedUser = $scope.permissions.searchText;
-            var maxlen = 0;
-            for(var i=0; i<$scope.searchItems.length;i++)
-             {
-               var searchitemlowercase=angular.lowercase($scope.searchItems[i]);
-               var searchtextlowercase=angular.lowercase($scope.permissions.searchText);
-               if( searchitemlowercase.indexOf( searchtextlowercase) !== -1)
-                {
-                 console.log($scope.searchItems[i]);
-                 maxlen++;
-                 $scope.suggestions.push($scope.searchItems[i]);
-                }
-                if(maxlen === 5)
-                {
-                 break;
-                }
-             }
-           };
-
-       var checkIfSelected = function()
-        {
-
-          if ( ($scope.suggestions.length === 0) && ($scope.selectIndex <0 || $scope.selectIndex >= $scope.suggestions.length)  || ( $scope.suggestions.length !== 0 && ( $scope.selectIndex <0 || $scope.selectIndex >= $scope.suggestions.length   )) )
-                 {
-                      $scope.permissions.searchText =  $scope.selectedUser;
-                      $scope.suggestions = [];
-                      return true;
-                 }
-         else
-                 {
-                        return false;
-                 }
-
-
-        };
-
-
-
-       $scope.checkKeyDown = function(event)
-        {
-
-            if(event.keyCode === 40)
-             {
-
-               event.preventDefault();
-
-
-               if($scope.selectIndex+1 !== $scope.suggestions.length)
-                {
-                  $scope.selectIndex++;
-                  console.log($scope.suggestions[$scope.selectIndex]);
-
-
-                }
-
-              console.log($scope.selectIndex);
-              }
-            else if(event.keyCode === 38)
-             {
-               event.preventDefault();
-
-                 if($scope.selectIndex-1 !== -1)
-                  {
-                    $scope.selectIndex--;
-
-                    }
-
-                  console.log($scope.selectIndex);
-             }
-            else if(event.keyCode === 13)
-             {
-
-                event.preventDefault();
-                console.log('bol sajna');
-                console.log($scope.selectIndex);
-                console.log($scope.suggestions[$scope.selectIndex]);
-
-                 if(!checkIfSelected())
-                 {
-                     $scope.selectedUser = $scope.suggestions[$scope.selectIndex];
-                     $scope.permissions.searchText = $scope.suggestions[$scope.selectIndex];
-                     $scope.suggestions = [];
-                 }
-
-
-             }
-
-        };
-
-      $scope.checkKeyUp = function(event)
-        {
-          if(event.keyCode !== 8 || event.keyCode !== 46)
-           {
-             if($scope.permissions.searchText === '')
-               {
-                   $scope.suggestions = [];
-               }
-            }
-         };
-
-
-
-        $scope.assignValueAndHide =function(index)
+     $scope.selectedUser =  $scope.searchText[$scope.selectedUserIndex];
+     var maxlen = 0;
+     for(var i=0; i<$scope.searchItems.length;i++)
+      {
+        var searchitemlowercase=angular.lowercase($scope.searchItems[i]);
+        var searchtextlowercase=angular.lowercase( $scope.searchText[$scope.selectedUserIndex].trim());
+        if( searchitemlowercase.indexOf( searchtextlowercase) !== -1)
          {
-           $scope.permissions.searchText=$scope.suggestions[index];
-           $scope.suggestions = [];
-         };
+          maxlen++;
+          $scope.suggestions.push($scope.searchItems[i]);
+         }
+         if(maxlen === 5)
+         {
+          break;
+         }
+      }
+    };
 
 
-});
+  var checkIfSelected = function()
+  {
+
+    if ( ($scope.suggestions.length === 0) && ($scope.selectIndex <0 || $scope.selectIndex >= $scope.suggestions.length)  || ( $scope.suggestions.length !== 0 && ( $scope.selectIndex <0 || $scope.selectIndex >= $scope.suggestions.length   )) )
+       {
+          $scope.searchText[$scope.selectedUserIndex] =  $scope.selectedUser;
+          $scope.suggestions = [];
+          return true;
+       }
+   else
+       {
+          return false;
+       }
+
+
+  };
+
+
+
+  $scope.checkKeyDown = function(event)
+    {
+
+        if(event.keyCode === 40)
+         {
+
+           event.preventDefault();
+           if($scope.selectIndex+1 !== $scope.suggestions.length)
+            {
+              $scope.selectIndex++;
+
+
+            }
+         }
+        else if(event.keyCode === 38)
+         {
+           event.preventDefault();
+
+             if($scope.selectIndex-1 !== -1)
+              {
+                $scope.selectIndex--;
+
+              }
+         }
+        else if(event.keyCode === 13)
+         {
+
+            event.preventDefault();
+            if(!checkIfSelected())
+             {
+                 $scope.selectedUser = $scope.suggestions[$scope.selectIndex];
+                 $scope.searchText[$scope.selectedUserIndex] = $scope.suggestions[$scope.selectIndex];
+                 updatePreviousList();
+                 convertToString();
+                 $scope.suggestions = [];
+             }
+         }
+    };
+
+  $scope.checkKeyUp = function(event)
+    {
+      if(event.keyCode !== 8 || event.keyCode !== 46)
+       {
+         if( $scope.searchText[$scope.selectedUserIndex] === '')
+           {
+               $scope.suggestions = [];
+           }
+        }
+     };
+
+
+
+  $scope.assignValueAndHide =function(index)
+   {
+      $scope.searchText[$scope.selectedUserIndex] = $scope.suggestions[index];
+      updatePreviousList();
+      convertToString();
+      $scope.suggestions = [];
+   };
+
+
+  });

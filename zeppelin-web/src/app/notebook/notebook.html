@@ -71,7 +71,7 @@ limitations under the License.
       <div class="permissionsForm"
            data-ng-model="permissions">
         <div >
-        <p>Owners : <input  ng-model="permissions.searchText" placeholder="search for fruits" class="input"  ng-change="search()"  ng-keydown="checkKeyDown($event)" ng-keyup="checkKeyUp($event)">{{permissions.searchText}}
+        <p>Owners : <input   ng-model="permissions.owners" placeholder="search for users" class="input"  ng-change="search()"  ng-keydown="checkKeyDown($event)" ng-keyup="checkKeyUp($event)">{{permissions.searchText}}
           <div id ="list4">
            <ul>
             <li ng-repeat="suggestion in suggestions" ng-class="{active : selectIndex === $index  }" ng-click="assignValueAndHide($index)"  >{{suggestion}}</li>
