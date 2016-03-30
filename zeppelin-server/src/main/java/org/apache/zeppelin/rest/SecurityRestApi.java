@@ -81,11 +81,7 @@ public class SecurityRestApi {
     JsonResponse response;
     // ticket set to anonymous for anonymous user. Simplify testing.
     try {
-
-
-
-
-     // SimpleAccount SA = new SimpleAccount();
+      // SimpleAccount SA = new SimpleAccount();
       Map<String, String> userslist = new HashMap<>();
       DefaultWebSecurityManager defaultWebSecurityManager;
       String key = "org.apache.shiro.util.ThreadContext_SECURITY_MANAGER_KEY";
