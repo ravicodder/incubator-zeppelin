@@ -678,8 +678,9 @@ angular.module('zeppelinWebApp').controller('NotebookCtrl',
   };
 
   $scope.savePermissions = function() {
-   if (!angular.isArray($scope.permissions.owners))
+   if (!angular.isArray($scope.permissions.owners)){
       $scope.permissions.owners = $scope.permissions.owners.split(',');
+      }
    // $scope.permissions.searchText = $scope.permissions.searchText.split(',');
 
 console.log($scope.permissions.owners);
@@ -743,6 +744,10 @@ console.log($scope.permissions.owners);
 
   var convertToArray = function () {
      $scope.searchText = $scope.permissions.owners.split(',');
+     for ( var i =0; i<$scope.searchText.length; i++)
+      {
+       $scope.searchText[i] = $scope.searchText[i].trim();
+      }
      //console.log($scope.searchText[0]+'lol');
   };
 
@@ -753,9 +758,10 @@ console.log($scope.permissions.owners);
   var getSearchItems = function () {
     $http.get(baseUrlSrv.getRestApiBase()+'/security/userlist').then(function(response) {
     var userlist = angular.fromJson(response.data).body;
-    for (var k in userlist)
+    for ( var k in userlist)
      {
-      $scope.searchItems.push(k);
+      $scope.searchItems.push(userlist[k]);
+      console.log(userlist[k]);
      }
     });
   };
@@ -804,7 +810,7 @@ console.log($scope.permissions.owners);
      for(var i=0; i<$scope.searchItems.length;i++)
       {
         var searchitemlowercase=angular.lowercase($scope.searchItems[i]);
-        var searchtextlowercase=angular.lowercase( $scope.searchText[$scope.selectedUserIndex].trim());
+        var searchtextlowercase=angular.lowercase( $scope.searchText[$scope.selectedUserIndex]);
         if( searchitemlowercase.indexOf( searchtextlowercase) !== -1)
          {
           maxlen++;
