@@ -6,6 +6,8 @@ import org.apache.shiro.realm.ldap.JndiLdapContextFactory;
 import org.apache.shiro.realm.ldap.JndiLdapRealm;
 import org.apache.shiro.realm.text.IniRealm;
 import org.apache.shiro.util.JdbcUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -25,7 +27,7 @@ import java.util.*;
 public class GetUserList {
 
   List<String> userlist = new ArrayList<>();
-
+  private static final Logger LOG = LoggerFactory.getLogger(GetUserList.class);
   public List<String> getUserList(IniRealm r) {
     List<String> userlist = new ArrayList<>();
     Map getIniUser = new HashMap();
@@ -61,8 +63,8 @@ public class GetUserList {
         }
       }
     }
-    catch (NamingException e) {
-      e.printStackTrace();
+    catch (Exception e) {
+      LOG.error("Error retrieving User list from Ldap Realm", e);
     }
     return userlist;
   }
@@ -86,7 +88,7 @@ public class GetUserList {
         userlist.add(rs.getString(1));
       }
     } catch (Exception e) {
-      System.out.print(e);
+      LOG.error("Error retrieving User list from JDBC Realm", e);
     } finally {
       JdbcUtils.closeResultSet(rs);
       JdbcUtils.closeStatement(ps);

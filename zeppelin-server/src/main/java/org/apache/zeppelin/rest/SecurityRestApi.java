@@ -90,7 +90,7 @@ public class SecurityRestApi {
 
     List<String> userslist = new ArrayList<>();
     try {
-      GetUserList getUserList = new GetUserList();
+      GetUserList getUserListObj = new GetUserList();
       DefaultWebSecurityManager defaultWebSecurityManager;
       String key = "org.apache.shiro.util.ThreadContext_SECURITY_MANAGER_KEY";
       defaultWebSecurityManager = (DefaultWebSecurityManager) ThreadContext.get(key);
@@ -99,18 +99,18 @@ public class SecurityRestApi {
       for (int i = 0; i < realmsList.size(); i++) {
         String name = realmsList.get(i).getClass().getName();
         if (name.equals("org.apache.shiro.realm.text.IniRealm")) {
-          userslist.addAll(getUserList.getUserList((IniRealm) realmsList.get(i)));
+          userslist.addAll(getUserListObj.getUserList((IniRealm) realmsList.get(i)));
         } else if (name.equals("org.apache.shiro.realm.ldap.JndiLdapRealm")) {
-          userslist.addAll(getUserList.getUserList((JndiLdapRealm) realmsList.get(i)));
+          userslist.addAll(getUserListObj.getUserList((JndiLdapRealm) realmsList.get(i)));
         } else if (name.equals("org.apache.shiro.realm.jdbc.JdbcRealm")) {
-          userslist.addAll(getUserList.getUserList((JdbcRealm) realmsList.get(i)));
+          userslist.addAll(getUserListObj.getUserList((JdbcRealm) realmsList.get(i)));
         }
       }
       if (userslist.size() == 0) {
         userslist.add(" No user found");
       }
     } catch (Exception e) {
-      System.out.println(e);
+      LOG.error("Exception in retrieving Users from realms ",e);
     }
     return new JsonResponse<>(Response.Status.OK, "", userslist).build();
   }
